@@ -21,7 +21,8 @@ public class ProcessingApplet extends PApplet{
 	public void setup() {
 		
 		size(800,800);
-		noStroke();
+		stroke(0);
+		strokeWeight(2);
 		smooth();
 		
 		// Initialise the empty ArrayList of Eye objects
