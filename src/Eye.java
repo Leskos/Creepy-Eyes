@@ -77,8 +77,9 @@ public class Eye {
 		
 		// Use the angle to calculate the offsets
 		// from the center to the pupil
-		float xOffset = (PApplet.cos(angle)*radius_glare);
-		float yOffset = (PApplet.sin(angle)*radius_glare);
+		float offsetRadius = PApplet.min( radius_glare*2, PApplet.dist( xPos, yPos, parent.mouseX, parent.mouseY ) );
+		float xOffset = (PApplet.cos(angle)*offsetRadius);
+		float yOffset = (PApplet.sin(angle)*offsetRadius);
 		
 		
 		
