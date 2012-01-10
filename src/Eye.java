@@ -62,7 +62,7 @@ public class Eye {
 		// Randomise the seed for the perlin noise
 		xNoise = parent.random( 0, 10 );
 		yNoise = parent.random( 0, 10 );
-		wanderSpeed = (float) 0.01;
+		wanderSpeed = parent.random((float) 0.01)+(float)0.01;
 		
 		setBehaviour(Behaviour.WANDER);
 	}
@@ -104,10 +104,16 @@ public class Eye {
 			
 			case WANDER :
 				// TODO : Smooth the transition in and out of wandering state
-				xOffset = (parent.noise(xNoise)*radius_glare*4) - radius_glare*2;
-				yOffset = (parent.noise(yNoise)*radius_glare*4) - radius_glare*2;
+				
+				// Generate a value using perlin noise for X and y offsets
+				// Values generated are in the range -2*radius_glare to 2*radius_glare
+				xOffset = ( parent.noise(xNoise) * radius_glare*4 ) - radius_glare*2;
+				yOffset = ( parent.noise(yNoise) * radius_glare*4 ) - radius_glare*2;
+				
+				// Increment perlin noise seeds by the wanderSpeed
 				xNoise += wanderSpeed;
 				yNoise += wanderSpeed;
+				
 				break;
 				
 			case FOLLOW_MOUSE : 

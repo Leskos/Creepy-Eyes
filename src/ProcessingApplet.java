@@ -12,6 +12,8 @@ public class ProcessingApplet extends PApplet{
 	// they can dynamically get bigger or smaller as needed )
 	private ArrayList<Eye> eyes;
 	
+	private float prevMouseX;
+	private float prevMouseY;
 	
 	/*
 	 * Setup()
@@ -55,13 +57,33 @@ public class ProcessingApplet extends PApplet{
 	public void mousePressed() {
 		eyes.add( new Eye(this, mouseX, mouseY) );
 	}
+	
+	
+	/*
+	 * mouseMoved()
+	 * 
+	 * If the mouse moves fast enough, all eyes look at it
+	 */
+	public void mouseMoved() {
+		float distanceMoved = dist( mouseX, mouseY, prevMouseX,prevMouseY );
+		if( distanceMoved > 50 ){
+			for( int i=0; i<eyes.size(); i++ ){
+				eyes.get(i).setBehaviour( Eye.Behaviour.FOLLOW_MOUSE );
+			}
+		}
+		prevMouseX = mouseX;
+		prevMouseY = mouseY;
+	}
 
 	
 	/*
 	 * keyPressed()
 	 * 
-	 * Deletes an eye from the ArrayList
-	 * (as long as there is one to delete)
+	 * Execute keyboard commands : 
+	 *   '1' - Set all eyes behaviour to WANDER
+	 *   '2' - Set all eyes behaviour to IDLE
+	 *   '3' - Set all eyes behaviour to FOLLOW_MOUSE
+	 *   ' ' - Delete the eye that was last added
 	 */
 	public void keyPressed(){
 		if( key == '1' ){
