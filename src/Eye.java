@@ -27,6 +27,23 @@ public class Eye {
 	float radius_pupil;
 	float radius_glare;
 	
+	// Where the pupil is looking
+	float xOffset;
+	float yOffset;
+	
+	// Variables for wandering using perlin noise
+	float xNoise;
+	float yNoise;
+	
+	float wanderSpeed;
+	
+	public enum Behaviour{
+		FOLLOW_MOUSE,
+		IDLE,
+		WANDER,
+	}
+	
+	Behaviour behaviour;
 	
 	/*
 	 * Eye( PApplet _parent, int _xPos, int _yPos )
@@ -41,6 +58,13 @@ public class Eye {
 		
 		// Generate a random value from 30-120 for the radius
 		setRadius( (int) parent.random(30,120) );
+		
+		// Randomise the seed for the perlin noise
+		xNoise = parent.random( 0, 10 );
+		yNoise = parent.random( 0, 10 );
+		wanderSpeed = (float) 0.01;
+		
+		setBehaviour(Behaviour.WANDER);
 	}
 	
 	
@@ -59,29 +83,62 @@ public class Eye {
 	
 	
 	/*
+	 * setBehaviour( Behaviour b )
+	 * 
+	 * Sets the behaviour to the Enum value passed
+	 */
+	public void setBehaviour( Behaviour _behaviour ) {
+		behaviour = _behaviour;
+	}
+	
+	
+	/*
+	 * updateGaze()
+	 */
+	private void updateGaze( ) {
+		
+		switch(behaviour){
+			
+			case IDLE : 
+				break;
+			
+			case WANDER :
+				// TODO : Smooth the transition in and out of wandering state
+				xOffset = (parent.noise(xNoise)*radius_glare*4) - radius_glare*2;
+				yOffset = (parent.noise(yNoise)*radius_glare*4) - radius_glare*2;
+				xNoise += wanderSpeed;
+				yNoise += wanderSpeed;
+				break;
+				
+			case FOLLOW_MOUSE : 
+				
+				// Calculate the differences in X
+				// and Y from the mouse's location
+				float dx = parent.mouseX-xPos;
+				float dy = parent.mouseY-yPos;
+				
+				// Use these to calculate the angle
+				float angle = PApplet.atan2(dy,dx);
+				
+				// Use the angle to calculate the offsets
+				// from the center to the pupil
+				float offsetRadius = PApplet.min( radius_glare*2, PApplet.dist( xPos, yPos, parent.mouseX, parent.mouseY ) );
+				xOffset = (PApplet.cos(angle)*offsetRadius);
+				yOffset = (PApplet.sin(angle)*offsetRadius);
+				break;
+		}
+	}
+	
+	
+	/*
 	 * draw()
 	 * 
 	 * Calculates the position of the pupil based on
 	 * the mouse, then draws all the bits of the eye
 	 */
-	public void draw(){
+	public void draw(){		
 		
-		// Calculate the X and Y offsets
-		// from the eye's location (   xPos,   yPos )
-		// to the mouse's location ( mouseX, mouseY )
-		float dx = parent.mouseX-xPos;
-		float dy = parent.mouseY-yPos;
-		
-		// Use these to calculate the angle
-		float angle = PApplet.atan2(dy,dx);
-		
-		// Use the angle to calculate the offsets
-		// from the center to the pupil
-		float offsetRadius = PApplet.min( radius_glare*2, PApplet.dist( xPos, yPos, parent.mouseX, parent.mouseY ) );
-		float xOffset = (PApplet.cos(angle)*offsetRadius);
-		float yOffset = (PApplet.sin(angle)*offsetRadius);
-		
-		
+		updateGaze();
 		
 		// Draw the main circle in white
 		parent.fill(255);
@@ -96,5 +153,7 @@ public class Eye {
 		parent.ellipse( xPos+xOffset+radius_glare, yPos+yOffset-radius_glare, 
 				        radius_glare, radius_glare );		      
 	}
+
+
 	
 }

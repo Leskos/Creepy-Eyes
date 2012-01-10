@@ -64,8 +64,25 @@ public class ProcessingApplet extends PApplet{
 	 * (as long as there is one to delete)
 	 */
 	public void keyPressed(){
-		if( eyes.size() > 0 ){
-			eyes.remove( eyes.size()-1 );
+		if( key == '1' ){
+			for( int i=0; i<eyes.size(); i++ ){
+				eyes.get(i).setBehaviour( Eye.Behaviour.WANDER );
+			}
+		}
+		if( key == '2' ){
+			for( int i=0; i<eyes.size(); i++ ){
+				eyes.get(i).setBehaviour( Eye.Behaviour.IDLE );
+			}
+		}
+		if( key == '3' ){
+			for( int i=0; i<eyes.size(); i++ ){
+				eyes.get(i).setBehaviour( Eye.Behaviour.FOLLOW_MOUSE );
+			}
+		}
+		if( key == ' ' ){
+			if( eyes.size() > 0 ){
+				eyes.remove( eyes.size()-1 );
+			}
 		}
 	}	
 	
