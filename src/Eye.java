@@ -27,9 +27,16 @@ public class Eye {
 	float radius_pupil;
 	float radius_glare;
 	
-	// Where the pupil is looking
+	// Where the pupil is meant to look
+	float xOffsetTarget;
+	float yOffsetTarget;
+	
+	// Where the pupil is actually looking
 	float xOffset;
 	float yOffset;
+	
+	// How quickly to move between intended and actual location
+	float lerpFactor;
 	
 	// Variables for wandering using perlin noise
 	float xNoise;
@@ -62,7 +69,9 @@ public class Eye {
 		// Randomise the seed for the perlin noise
 		xNoise = parent.random( 0, 10 );
 		yNoise = parent.random( 0, 10 );
-		wanderSpeed = parent.random((float) 0.01)+(float)0.01;
+		wanderSpeed = parent.random( (float) 0.01 )+(float)0.01;
+		
+		lerpFactor = parent.random( (float)0.2, (float)0.8 );
 		
 		setBehaviour(Behaviour.WANDER);
 	}
@@ -100,6 +109,8 @@ public class Eye {
 		switch(behaviour){
 			
 			case IDLE : 
+				xOffsetTarget = xOffset;
+				yOffsetTarget = yOffset;
 				break;
 			
 			case WANDER :
@@ -107,8 +118,8 @@ public class Eye {
 				
 				// Generate a value using perlin noise for X and y offsets
 				// Values generated are in the range -2*radius_glare to 2*radius_glare
-				xOffset = ( parent.noise(xNoise) * radius_glare*4 ) - radius_glare*2;
-				yOffset = ( parent.noise(yNoise) * radius_glare*4 ) - radius_glare*2;
+				xOffsetTarget = ( parent.noise(xNoise) * radius_glare*4 ) - radius_glare*2;
+				yOffsetTarget = ( parent.noise(yNoise) * radius_glare*4 ) - radius_glare*2;
 				
 				// Increment perlin noise seeds by the wanderSpeed
 				xNoise += wanderSpeed;
@@ -129,8 +140,9 @@ public class Eye {
 				// Use the angle to calculate the offsets
 				// from the center to the pupil
 				float offsetRadius = PApplet.min( radius_glare*2, PApplet.dist( xPos, yPos, parent.mouseX, parent.mouseY ) );
-				xOffset = (PApplet.cos(angle)*offsetRadius);
-				yOffset = (PApplet.sin(angle)*offsetRadius);
+				xOffsetTarget = (PApplet.cos(angle)*offsetRadius);
+				yOffsetTarget = (PApplet.sin(angle)*offsetRadius);
+				
 				break;
 		}
 	}
@@ -145,6 +157,9 @@ public class Eye {
 	public void draw(){		
 		
 		updateGaze();
+		
+		xOffset = xOffset +  lerpFactor*(xOffsetTarget-xOffset);
+		yOffset = yOffset +  lerpFactor*(yOffsetTarget-yOffset);
 		
 		// Draw the main circle in white
 		parent.fill(255);
