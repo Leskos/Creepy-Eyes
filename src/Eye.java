@@ -27,6 +27,10 @@ public class Eye {
 	float radius_pupil;
 	float radius_glare;
 	
+	// Where what it is looking at is located
+	int xTarget;
+	int yTarget;
+	
 	// Where the pupil is meant to look
 	float xOffsetTarget;
 	float yOffsetTarget;
@@ -35,12 +39,9 @@ public class Eye {
 	float xOffset;
 	float yOffset;
 	
+	
 	// How quickly to move between intended and actual location
 	float lerpFactor;
-	
-	// Variables for wandering using perlin noise
-	float xNoise;
-	float yNoise;
 	
 	float wanderSpeed;
 	
@@ -66,12 +67,9 @@ public class Eye {
 		// Generate a random value from 30-120 for the radius
 		setRadius( (int) parent.random(30,120) );
 		
-		// Randomise the seed for the perlin noise
-		xNoise = parent.random( 0, 10 );
-		yNoise = parent.random( 0, 10 );
 		wanderSpeed = parent.random( (float) 0.01 )+(float)0.01;
 		
-		lerpFactor = parent.random( (float)0.2, (float)0.8 );
+		lerpFactor = parent.random( (float)0.1, (float)0.3 );
 		
 		setBehaviour(Behaviour.WANDER);
 	}
@@ -109,42 +107,53 @@ public class Eye {
 		switch(behaviour){
 			
 			case IDLE : 
-				xOffsetTarget = xOffset;
-				yOffsetTarget = yOffset;
+				
+				// Look at whatever we are currently looking at
+				//xTarget = (int) (xPos + xOffset);
+				//yTarget = (int) (yPos + yOffset);
 				break;
 			
 			case WANDER :
-				// TODO : Smooth the transition in and out of wandering state
 				
-				// Generate a value using perlin noise for X and y offsets
-				// Values generated are in the range -2*radius_glare to 2*radius_glare
-				xOffsetTarget = ( parent.noise(xNoise) * radius_glare*4 ) - radius_glare*2;
-				yOffsetTarget = ( parent.noise(yNoise) * radius_glare*4 ) - radius_glare*2;
+				// Look at a random target
 				
-				// Increment perlin noise seeds by the wanderSpeed
-				xNoise += wanderSpeed;
-				yNoise += wanderSpeed;
+				// 1 in 200 chance of picking a new target each update
+				if( parent.random(1) < 0.005  ){
+					xTarget = (int) parent.random( xPos-10, xPos+10 );
+					yTarget = (int) parent.random( yPos-10, yPos+10 );
+				}
 				
+				// 1 in 100 chance of moving the target slightly
+				if( parent.random(1) < 0.01  ){
+					xTarget += parent.random( -50, 50 );
+					yTarget += parent.random( -50, 50 );
+				}
+				
+								
 				break;
 				
-			case FOLLOW_MOUSE : 
+			case FOLLOW_MOUSE :
 				
-				// Calculate the differences in X
-				// and Y from the mouse's location
-				float dx = parent.mouseX-xPos;
-				float dy = parent.mouseY-yPos;
-				
-				// Use these to calculate the angle
-				float angle = PApplet.atan2(dy,dx);
-				
-				// Use the angle to calculate the offsets
-				// from the center to the pupil
-				float offsetRadius = PApplet.min( radius_glare*2, PApplet.dist( xPos, yPos, parent.mouseX, parent.mouseY ) );
-				xOffsetTarget = (PApplet.cos(angle)*offsetRadius);
-				yOffsetTarget = (PApplet.sin(angle)*offsetRadius);
+				// Look at the wherever the mouse is located
+				xTarget = parent.mouseX;
+				yTarget = parent.mouseY;
 				
 				break;
 		}
+		
+		// Calculate the differences in X
+		// and Y from the targets location
+		float dx = xTarget-xPos;
+		float dy = yTarget-yPos;
+		
+		// Use these to calculate the angle
+		float angle = PApplet.atan2(dy,dx);
+		
+		// Use the angle to calculate the offsets
+		// from the center to the pupil
+		float offsetRadius = PApplet.min( radius_glare*2, PApplet.dist( xPos, yPos, parent.mouseX, parent.mouseY ) );
+		xOffsetTarget = (PApplet.cos(angle)*offsetRadius);
+		yOffsetTarget = (PApplet.sin(angle)*offsetRadius);
 	}
 	
 	
