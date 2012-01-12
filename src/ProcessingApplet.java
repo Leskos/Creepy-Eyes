@@ -106,6 +106,11 @@ public class ProcessingApplet extends PApplet{
 				eyes.remove( eyes.size()-1 );
 			}
 		}
+		if( key == 'r' ){
+			for( int i=0; i<20; i++ ){
+				eyes.add( new Eye( this, (int)random(0,width), (int)random(0,height) ) );
+			}
+		}
 	}	
 	
 	
