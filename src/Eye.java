@@ -30,6 +30,8 @@ public class Eye {
 	// Where what it is looking at is located
 	int xTarget;
 	int yTarget;
+	int xTargetPrev;
+	int yTargetPrev;
 	
 	// Where the pupil is meant to look
 	float xOffsetTarget;
@@ -39,11 +41,12 @@ public class Eye {
 	float xOffset;
 	float yOffset;
 	
-	
 	// How quickly to move between intended and actual location
 	float lerpFactor;
 	
-	float wanderSpeed;
+	// How bored we are, and our boredom threshold
+	int boredomLevel;
+	int boredomThresh;
 	
 	public enum Behaviour{
 		FOLLOW_MOUSE,
@@ -66,10 +69,11 @@ public class Eye {
 		
 		// Generate a random value from 30-120 for the radius
 		setRadius( (int) parent.random(30,120) );
-		
-		wanderSpeed = parent.random( (float) 0.01 )+(float)0.01;
-		
+				
 		lerpFactor = parent.random( (float)0.1, (float)0.3 );
+		
+		boredomLevel  = 0;
+		boredomThresh = 60;
 		
 		setBehaviour(Behaviour.WANDER);
 	}
@@ -95,6 +99,9 @@ public class Eye {
 	 * Sets the behaviour to the Enum value passed
 	 */
 	public void setBehaviour( Behaviour _behaviour ) {
+		if( _behaviour != Behaviour.WANDER ){
+			boredomLevel = 0;
+		}
 		behaviour = _behaviour;
 	}
 	
@@ -104,13 +111,19 @@ public class Eye {
 	 */
 	private void updateGaze( ) {
 		
+		if(    xTargetPrev == xTarget && yTargetPrev == yTarget ){
+			boredomLevel++;
+		}
+		if( boredomLevel > boredomThresh ){
+			setBehaviour(Behaviour.WANDER);
+		}
+		xTargetPrev = xTarget;
+		yTargetPrev = yTarget;
+		
 		switch(behaviour){
 			
 			case IDLE : 
-				
 				// Look at whatever we are currently looking at
-				//xTarget = (int) (xPos + xOffset);
-				//yTarget = (int) (yPos + yOffset);
 				break;
 			
 			case WANDER :
@@ -128,8 +141,6 @@ public class Eye {
 					xTarget += parent.random( -50, 50 );
 					yTarget += parent.random( -50, 50 );
 				}
-				
-								
 				break;
 				
 			case FOLLOW_MOUSE :
@@ -137,7 +148,6 @@ public class Eye {
 				// Look at the wherever the mouse is located
 				xTarget = parent.mouseX;
 				yTarget = parent.mouseY;
-				
 				break;
 		}
 		

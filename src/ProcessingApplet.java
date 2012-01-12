@@ -26,6 +26,7 @@ public class ProcessingApplet extends PApplet{
 		stroke(0);
 		strokeWeight(2);
 		smooth();
+		frameRate(60);
 		
 		// Initialise the empty ArrayList of Eye objects
 		eyes = new ArrayList<Eye>();
