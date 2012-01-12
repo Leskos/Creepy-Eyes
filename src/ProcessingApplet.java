@@ -1,7 +1,6 @@
 
 import java.util.ArrayList;
-
-import processing.core.*;
+import processing.core.PApplet;
 
 @SuppressWarnings("serial")
 public class ProcessingApplet extends PApplet{
